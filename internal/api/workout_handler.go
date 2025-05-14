@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 
 type WorkoutHandler struct {
 	workoutStore store.WorkoutStore
-	db           *sql.DB
 }
 
 func NewWorkoutHandler(workoutStore store.WorkoutStore) *WorkoutHandler {
@@ -49,7 +47,7 @@ func (wh *WorkoutHandler) HandleCreateWorkout(w http.ResponseWriter, r *http.Req
 	createdWorkout, err := wh.workoutStore.CreateWorkout(&workout)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Failed to create workout", http.StatusInternalServerError)
+		http.Error(w, "Failed to create workout two", http.StatusInternalServerError)
 		return
 	}
 

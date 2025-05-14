@@ -53,10 +53,31 @@ func (pg *PostgresWorkoutStore) CreateWorkout(workout *Workout) (*Workout, error
 
 	for _, entry := range workout.Entries {
 		query := `INSERT INTO workout_entries (workout_id, exercise_name, sets, reps, duration_seconds, weight, notes, order_index)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id
 		`
-		err := tx.QueryRow(query, workout.ID, entry.ExerciseName, entry.Sets, entry.Reps, entry.DurationSeconds, entry.Weight, entry.Notes, entry.OrderIndex).Scan(&entry.ID)
+		// Convert *int and *float64 to sql.Null* types
+		var reps sql.NullInt32
+		if entry.Reps != nil {
+			reps = sql.NullInt32{Int32: int32(*entry.Reps), Valid: true}
+		} else {
+			reps = sql.NullInt32{Valid: false}
+		}
+
+		var durationSeconds sql.NullInt32
+		if entry.DurationSeconds != nil {
+			durationSeconds = sql.NullInt32{Int32: int32(*entry.DurationSeconds), Valid: true}
+		} else {
+			durationSeconds = sql.NullInt32{Valid: false}
+		}
+
+		var weight sql.NullFloat64
+		if entry.Weight != nil {
+			weight = sql.NullFloat64{Float64: *entry.Weight, Valid: true}
+		} else {
+			weight = sql.NullFloat64{Valid: false}
+		}
+		err := tx.QueryRow(query, workout.ID, entry.ExerciseName, entry.Sets, reps, durationSeconds, weight, entry.Notes, entry.OrderIndex).Scan(&entry.ID)
 		if err != nil {
 			return nil, err
 		}
