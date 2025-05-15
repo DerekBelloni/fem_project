@@ -140,3 +140,26 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 
 	return workout, nil
 }
+
+func (pg *PostgresWorkoutStore) UpdateWorkout(workout *Workout) error {
+	tx, err := pg.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	query := `
+	UPDATE workouts
+	SET title = $1, description = $2, duration_minutes = $3, calories_burned = $4
+	WHERE id = $5
+	`
+	result, err := tx.Exec(query, workout.Title, workout.Description, workout.DurationMinutes, workout.CaloriesBurned, workout.ID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	return nil
+}
