@@ -157,9 +157,39 @@ func (pg *PostgresWorkoutStore) UpdateWorkout(workout *Workout) error {
 	if err != nil {
 		return err
 	}
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-	return nil
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	_, err = tx.Exec(`DELETE FROM workout_entries WHERE workout_id = $1`, workout.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range workout.Entries {
+		query := `
+	INSERT INTO workout_entries (workout_id, exercise_name, sets, reps, duration_seconds, notes, weight, order_index)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`
+		_, err := tx.Exec(query,
+			workout.ID,
+			entry.ExerciseName,
+			entry.Sets,
+			entry.Reps,
+			entry.DurationSeconds,
+			entry.Notes,
+			entry.Weight,
+			entry.OrderIndex,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
