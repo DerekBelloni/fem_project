@@ -37,6 +37,7 @@ type WorkoutStore interface {
 	CreateWorkout(*Workout) (*Workout, error)
 	GetWorkoutByID(id int64) (*Workout, error)
 	UpdateWorkout(*Workout) error
+	DeleteWorkout(id int64) error
 }
 
 func (pg *PostgresWorkoutStore) CreateWorkout(workout *Workout) (*Workout, error) {
@@ -94,7 +95,6 @@ func (pg *PostgresWorkoutStore) CreateWorkout(workout *Workout) (*Workout, error
 }
 
 func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
-	fmt.Println("TEST")
 	workout := &Workout{}
 	query := `
 		SELECT id, title, description, duration_minutes, calories_burned
@@ -113,7 +113,7 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 		fmt.Printf("first error return: %v\n", err)
 		return nil, err
 	}
-	fmt.Println("before entryquery")
+
 	entryQuery := `
 	SELECT id, exercise_name, sets, reps, duration_seconds, weight, notes, order_index
 	FROM workout_entries
@@ -126,7 +126,7 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 	}
 
 	defer rows.Close()
-	fmt.Println("before for")
+
 	for rows.Next() {
 		var entry WorkoutEntry
 		err = rows.Scan(
@@ -143,9 +143,7 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 			return nil, err
 		}
 		workout.Entries = append(workout.Entries, entry)
-		fmt.Printf("workout entry: %v", entry)
 	}
-	fmt.Printf("workout in get workout by id in store: %v\n", workout)
 
 	return workout, nil
 }
@@ -201,4 +199,26 @@ func (pg *PostgresWorkoutStore) UpdateWorkout(workout *Workout) error {
 		}
 	}
 	return tx.Commit()
+}
+
+func (pg *PostgresWorkoutStore) DeleteWorkout(id int64) error {
+	query := `
+	DELETE FROM workouts
+	WHERE id = $1
+	`
+	result, err := pg.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
