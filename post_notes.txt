@@ -1,6 +1,5 @@
-
 1.5:
-curl -X POST http://localhost:3572/workouts \
+curl -X POST http://localhost:8080/workouts \
      -H "Content-Type: application/json" \
      -d '{
            "title": "Morning Strength Training",

@@ -1,6 +1,9 @@
 package store
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 type Workout struct {
 	ID              int            `json:"id"`
@@ -91,6 +94,7 @@ func (pg *PostgresWorkoutStore) CreateWorkout(workout *Workout) (*Workout, error
 }
 
 func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
+	fmt.Println("TEST")
 	workout := &Workout{}
 	query := `
 		SELECT id, title, description, duration_minutes, calories_burned
@@ -101,13 +105,15 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 	err := pg.db.QueryRow(query, id).Scan(&workout.ID, &workout.Title, &workout.Description, &workout.DurationMinutes, &workout.CaloriesBurned)
 
 	if err == sql.ErrNoRows {
+		fmt.Printf("first error return: %v\n", err)
 		return nil, nil
 	}
 
 	if err != nil {
+		fmt.Printf("first error return: %v\n", err)
 		return nil, err
 	}
-
+	fmt.Println("before entryquery")
 	entryQuery := `
 	SELECT id, exercise_name, sets, reps, duration_seconds, weight, notes, order_index
 	FROM workout_entries
@@ -120,13 +126,14 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 	}
 
 	defer rows.Close()
-
+	fmt.Println("before for")
 	for rows.Next() {
 		var entry WorkoutEntry
 		err = rows.Scan(
 			&entry.ID,
 			&entry.ExerciseName,
 			&entry.Sets,
+			&entry.Reps,
 			&entry.DurationSeconds,
 			&entry.Weight,
 			&entry.Notes,
@@ -136,7 +143,9 @@ func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
 			return nil, err
 		}
 		workout.Entries = append(workout.Entries, entry)
+		fmt.Printf("workout entry: %v", entry)
 	}
+	fmt.Printf("workout in get workout by id in store: %v\n", workout)
 
 	return workout, nil
 }
