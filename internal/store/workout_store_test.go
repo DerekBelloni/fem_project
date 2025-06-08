@@ -21,7 +21,48 @@ func setupTestDB(t *testing.T) *sql.DB {
 
 	_, err = db.Exec(`TRUNCATE workouts, workout_entries CASCADE`)
 	if err != nil {
-		t.Fatalf("truncating tables err: %v", err)
+		t.Fatalf("truncating hables err: %v", err)
 	}
 	return db
+}
+
+func TestCreateWorkout(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	store := NewPostgresWorkoutStore(db)
+	tests := []struct {
+		name    string
+		workout *Workout
+		wantErr bool
+	}{
+		{
+			name: "valid workout",
+			workout: &Workout{
+				Title:           "push day",
+				Description:     "upper body day",
+				DurationMinutes: 60,
+				CaloriesBurned:  200,
+				Entries: []WorkoutEntry{
+					{
+						ExerciseName: "bench press",
+						Sets:         3,
+						Reps:         IntPtr(10),
+						Weight:       FltPtr(135.5),
+						Notes:        "warm up",
+						OrderIndex:   1,
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+}
+
+func IntPtr(i int) *int {
+	return &i
+}
+
+func FltPtr(i float64) *float64 {
+	return &i
 }
