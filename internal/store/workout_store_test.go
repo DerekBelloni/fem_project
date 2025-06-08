@@ -56,6 +56,32 @@ func TestCreateWorkout(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "workout with invalid entries",
+			workout: &Workout{
+				Title:           "full body",
+				Description:     "full body workout",
+				DurationMinutes: 90,
+				CaloriesBurned:  100,
+				Entries: []WorkoutEntry{
+					{
+						ExerciseName: "Plank",
+						Sets:         3,
+						Reps:         IntPtr(60),
+						Notes:        "form",
+						OrderIndex:   1,
+					},
+					{
+						ExerciseName: "squats",
+						Sets:         4,
+						Reps:         IntPtr(12),
+						Weight:       FltPtr(185.0),
+						Notes:        "whatever",
+						OrderIndex:   2,
+					},
+				},
+			},
+		},
 	}
 }
 
