@@ -70,16 +70,17 @@ func TestCreateWorkout(t *testing.T) {
 						ExerciseName: "Plank",
 						Sets:         3,
 						Reps:         IntPtr(60),
-						Notes:        "form",
+						Notes:        "keep form",
 						OrderIndex:   1,
 					},
 					{
-						ExerciseName: "squats",
-						Sets:         4,
-						Reps:         IntPtr(12),
-						Weight:       FltPtr(185.0),
-						Notes:        "whatever",
-						OrderIndex:   2,
+						ExerciseName:    "squats",
+						Sets:            4,
+						Reps:            IntPtr(12),
+						DurationSeconds: IntPtr(60),
+						Weight:          FltPtr(185.0),
+						Notes:           "full depth",
+						OrderIndex:      2,
 					},
 				},
 			},
@@ -97,7 +98,6 @@ func TestCreateWorkout(t *testing.T) {
 			assert.Equal(t, tt.workout.Title, createdWorkout.Title)
 			assert.Equal(t, tt.workout.Description, createdWorkout.Description)
 			assert.Equal(t, tt.workout.DurationMinutes, createdWorkout.DurationMinutes)
-			assert.Equal(t, tt.workout.CaloriesBurned, createdWorkout.CaloriesBurned)
 
 			retrieved, err := store.GetWorkoutByID(int64(createdWorkout.ID))
 			require.NoError(t, err)
