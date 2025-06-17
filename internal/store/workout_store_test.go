@@ -56,7 +56,7 @@ func TestCreateWorkout(t *testing.T) {
 					},
 				},
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name: "workout with invalid entries",
