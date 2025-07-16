@@ -133,8 +133,35 @@ func (s *PostgresUserStore) UpdateUser(user *User) error {
 	return nil
 }
 
-func (S *PostgreTokenStore) GetUserToken(scope, tokenPlainText string) (*User, error) {
+func (s *PostgreTokenStore) GetUserToken(scope, tokenPlainText string) (*User, error) {
 	tokenHash := sha256.Sum256([]byte(tokenPlainText)
 
-	query := 
+	query := `
+	SELECT u.id, u.username, u.email, u.password_hash, u.created_at, u.updated_at
+	FROM users u
+	INNER JOIN tokens t ON t.user_id = u.id
+	WHERE t.hash = $1 AND t.scope = $2 and t.expiry > $3
+	`
+	user := &User{
+		PasswordHash: password{},
+	}
+
+	err := s.db.QueryRow(query, tokenHash[:], scope, time.Now()).Scan(
+		&user.ID,
+		&user.Email,
+		&user.PasswordHash.hash,
+		&user.Bio,
+		&user.CreatedAt,
+		&user.UpdatedAt
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
