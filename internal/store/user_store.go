@@ -155,7 +155,7 @@ func (s *PostgreTokenStore) GetUserToken(scope, tokenPlainText string) (*User, e
 		&user.UpdatedAt
 	)
 
-	if err == sql.ErrNoRows {
+	if err == sql.ErrNoRows {:
 		return nil, nil
 	}
 
