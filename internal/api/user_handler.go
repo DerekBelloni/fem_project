@@ -15,7 +15,7 @@ type registerUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Bio      string `json:""`
+	Bio      string `json:"bio"`
 }
 
 type UserHandler struct {

@@ -52,7 +52,7 @@ type User struct {
 
 var AnonymousUser = &User{}
 
-func (u *User) isAnonymous() bool {
+func (u *User) IsAnonymous() bool {
 	return u == AnonymousUser
 }
 
@@ -60,7 +60,7 @@ type PostgresUserStore struct {
 	db *sql.DB
 }
 
-func NewPostgrestUserStore(db *sql.DB) *PostgresUserStore {
+func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
 	return &PostgresUserStore{
 		db: db,
 	}
@@ -112,7 +112,7 @@ func (s *PostgresUserStore) GetUserByUsername(username string) (*User, error) {
 func (s *PostgresUserStore) UpdateUser(user *User) error {
 	query := `
 	UPDATE users
-	SET username = $1, email = $2, bio = $3, updated_at = CURRENT_TIMESTAMP)
+	SET username = $1, email = $2, bio = $3, updated_at = CURRENT_TIMESTAMP
 	WHERE id = $4
 	RETURNING updated_at
 	`
@@ -133,8 +133,8 @@ func (s *PostgresUserStore) UpdateUser(user *User) error {
 	return nil
 }
 
-func (s *PostgreTokenStore) GetUserToken(scope, tokenPlainText string) (*User, error) {
-	tokenHash := sha256.Sum256([]byte(tokenPlainText)
+func (s *PostgresUserStore) GetUserToken(scope string, tokenPlainText string) (*User, error) {
+	tokenHash := sha256.Sum256([]byte(tokenPlainText))
 
 	query := `
 	SELECT u.id, u.username, u.email, u.password_hash, u.created_at, u.updated_at
@@ -152,10 +152,10 @@ func (s *PostgreTokenStore) GetUserToken(scope, tokenPlainText string) (*User, e
 		&user.PasswordHash.hash,
 		&user.Bio,
 		&user.CreatedAt,
-		&user.UpdatedAt
+		&user.UpdatedAt,
 	)
 
-	if err == sql.ErrNoRows {:
+	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 
