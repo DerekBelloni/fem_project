@@ -160,6 +160,7 @@ func (wh *WorkoutHandler) HandleDeleteWorkoutByID(w http.ResponseWriter, r *http
 		wh.logger.Printf("ERROR: readIDParam: %v", err)
 		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "invalid workout id"})
 	}
+
 	currentUser := middleware.GetUser(r)
 	if currentUser == nil || currentUser == store.AnonymousUser {
 		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": "You must be logged in"})

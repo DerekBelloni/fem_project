@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS workouts (
 -- +goose StatementBegin
 DROP TABLE workouts;
 -- +goose StatementEnd
-
+ 
